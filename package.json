@@ -1,5 +1,5 @@
 {
-  "name": "@yourorg/nodeweb-demo",
+  "name": "@tthuhuong05/nodeweb-demo",
   "version": "0.1.0",
   "description": "Demo Node package",
   "main": "src/index.js",
@@ -10,6 +10,6 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "repository": "github:yourorg/monorepo",
+  "repository": "github:tthuhuong05/demo",
   "license": "MIT"
 }
