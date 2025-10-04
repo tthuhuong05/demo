@@ -9,27 +9,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
-        with: { go-version: "1.22" }
-      - run: go version
-      - run: go build -v ./...
-      - run: make deb || true
+        with:
+          go-version: "1.22"
 
-  node:
-    runs-on: ubuntu-latest
-    if: ${{ hashFiles('index.js') != '' }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "20" }
-      - run: node -e "console.log(require('./index.js')?.hello?.()||'node ok')"
-
-  java:
-    runs-on: ubuntu-latest
-    if: ${{ hashFiles('Hello.java') != '' }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Compile Hello.java
+      - name: Show versions
         run: |
-          mkdir -p out
-          javac -d out Hello.java
+          go version
+          make --version || true
+
+      - name: Build Go (repo root)
+        run: go build -v ./...
+
+      - name: Build .deb if Makefile exists
+        run: |
+          if [ -f Makefile ]; then
+            make deb || true
+          fi
+
+      - name: Upload .deb artifact (if any)
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: "*.deb"
+          if-no-files-found: ignore
