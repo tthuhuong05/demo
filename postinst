@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "gosvc-demo installed"
+exit 0
