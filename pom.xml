@@ -12,7 +12,7 @@
     <repository>
       <id>github</id>
       <name>GitHub Packages</name>
-      <url>https://maven.pkg.github.com/yourorg/monorepo</url>
+      <url>https://maven.pkg.github.com/tthuhuong05/demo</url>
     </repository>
   </distributionManagement>
   <properties>
