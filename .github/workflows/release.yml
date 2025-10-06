@@ -3,12 +3,12 @@ name: Release (Go only)
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch: {}
 
 permissions:
   contents: write
   packages: write
 
-# Chỉ giữ IMAGE cố định, không tính tag ở đây
 env:
   IMAGE: ghcr.io/${{ github.repository }}/gosvc
 
@@ -19,10 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ---- Tính TAG từ tên tag Git (bỏ chữ v) ----
-      - name: Compute TAG
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Compute TAG (strip 'v')
         run: |
           echo "TAG=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          echo "TAG=$TAG"
+
+      # Optional: run tests before releasing
+      - name: Test
+        run: go test ./...
 
       # ---- Build & Push multi-arch image ----
       - uses: docker/setup-qemu-action@v3
@@ -38,14 +47,11 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             -t "$IMAGE:$TAG" \
+            -t "$IMAGE:latest" \
             --push \
             .
 
       # ---- Build .deb (nếu Makefile có target deb) ----
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-
       - name: Build .deb package
         run: |
           make deb VERSION="$TAG" || true
@@ -55,7 +61,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           generate_release_notes: true
           files: |
             *.deb
+            dist/*.deb
